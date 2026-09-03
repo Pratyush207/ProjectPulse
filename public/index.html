@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1115;
+    --bg-raised:#15181e;
+    --bg-raised-2:#1b1f27;
+    --bg-hover:#1e222b;
+    --border:rgba(255,255,255,0.08);
+    --border-strong:rgba(255,255,255,0.16);
+    --text:#F3F4F6;
+    --text-secondary:#9CA3AF;
+    --text-faint:#676D7A;
+    --accent:#4C8DFF;
+    --accent-hover:#6BA1FF;
+    --accent-soft:rgba(76,141,255,0.12);
+    --accent-border:rgba(76,141,255,0.4);
+    --emerald:#10B981;
+    --emerald-soft:rgba(16,185,129,0.12);
+    --amber:#F59E0B;
+    --amber-soft:rgba(245,158,11,0.12);
+    --danger:#F87171;
+    --danger-soft:rgba(248,113,113,0.1);
+    --radius-sm:6px;
+    --radius-md:10px;
+    --radius-lg:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background-color:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    font-feature-settings:'cv11','ss01';
+  }
+  ::selection{background:var(--accent-soft);color:var(--text);}
+  .wrap{max-width:1120px;margin:0 auto;padding:32px 28px 100px;}
+
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;gap:12px;flex-wrap:wrap;
+    border-bottom:1px solid var(--border);padding-bottom:20px;
+  }
+  .brand{font-family:'Inter',sans-serif;font-weight:700;font-size:16px;letter-spacing:-0.01em;position:relative;color:var(--text);}
+  .brand .dot{color:var(--accent);font-style:normal;}
+  .session{display:flex;align-items:center;gap:14px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text-secondary);}
+  .session .badge{
+    border:1px solid var(--border-strong);color:var(--text-secondary);background:var(--bg-raised);
+    padding:3px 9px;border-radius:20px;
+    font-size:11px;font-weight:600;letter-spacing:.02em;display:inline-block;
+  }
+  .session .admin-badge{border-color:var(--accent-border);color:var(--accent-hover);background:var(--accent-soft);}
+  .logout-btn{
+    background:none;border:none;color:var(--text-secondary);
+    padding:6px 2px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;
+    transition:color .15s;
+  }
+  .logout-btn:hover{color:var(--text);}
+
+  /* ---------- Login gate ---------- */
+  .login-screen{max-width:400px;margin:14vh auto 0;text-align:left;}
+  .login-screen .eyebrow{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 14px;}
+  .login-screen h1{font-family:'Inter',sans-serif;font-weight:700;font-size:32px;margin:0 0 12px;line-height:1.2;letter-spacing:-0.02em;color:var(--text);}
+  .login-screen p{color:var(--text-secondary);font-size:14.5px;line-height:1.6;margin:0 0 28px;font-family:'Inter',sans-serif;}
+  .login-form{background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;}
+  .login-form .domain-hint{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text-faint);margin-top:16px;text-align:center;}
+  .google-btn{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+    background:var(--text);color:#0f1115;border:1px solid var(--text);border-radius:var(--radius-sm);
+    padding:11px;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;cursor:pointer;
+    transition:background .15s,transform .1s;
+  }
+  .google-btn:hover{background:#e5e7eb;}
+  .google-btn:active{transform:scale(0.99);}
+  .google-btn:disabled{opacity:.6;cursor:default;}
+  .google-btn svg{flex-shrink:0;}
+  .login-error{color:var(--danger);font-size:12.5px;margin-top:14px;font-family:'Inter',sans-serif;line-height:1.5;}
+  .auth-loading{color:var(--text-faint);font-family:'Inter',sans-serif;font-size:13px;text-align:center;margin-top:14vh;}
+
+  /* ---------- Header / hero ---------- */
+  .hero{
+    display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,400px);
+    align-items:start;gap:24px;margin-bottom:32px;
+  }
+  .hero-text .eyebrow{
+    font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 12px;
+  }
+  h1.title{
+    font-family:'Inter',sans-serif;font-weight:700;font-size:clamp(28px,4vw,38px);
+    margin:0 0 12px;letter-spacing:-0.02em;line-height:1.18;color:var(--text);
+  }
+  .tagline{color:var(--text-secondary);font-size:15px;max-width:440px;margin:0;line-height:1.6;font-family:'Inter',sans-serif;}
+
+  .pulse-card{
+    background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:20px 22px;
+  }
+  .pulse-card .plabel{font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px;}
+  .pulse-row{display:flex;align-items:center;gap:14px;}
+  .hero-right{display:flex;flex-direction:column;gap:14px;min-width:0;}
+
+  /* ---------- Agora promo card ---------- */
+  .agora-card{
+    border-radius:var(--radius-lg);padding:22px 24px;
+    border:1px solid var(--border);background:var(--bg-raised);
+    display:block;position:relative;transition:border-color .15s;
+  }
+  .agora-card:hover{border-color:var(--border-strong);}
+  .agora-card.style-teal{border-color:var(--border);}
+  .agora-card .a-eyebrow{
+    font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:10px;
+  }
+  .agora-card.style-teal .a-eyebrow{color:var(--emerald);}
+  .agora-card .a-title{font-family:'Inter',sans-serif;font-weight:700;font-size:18px;margin-bottom:8px;line-height:1.3;letter-spacing:-0.01em;color:var(--text);}
+  .agora-card .a-desc{font-size:13.5px;color:var(--text-secondary);line-height:1.55;margin-bottom:16px;font-family:'Inter',sans-serif;}
+  .agora-card .a-highlights{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;}
+  .agora-card .a-chip{
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:.01em;color:var(--text-secondary);
+    background:var(--bg-raised-2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;
+  }
+  .agora-card .a-btn{
+    display:inline-block;background:var(--accent);color:#0b1220;border:1px solid var(--accent);border-radius:var(--radius-sm);
+    padding:9px 16px;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;
+    cursor:pointer;text-decoration:none;transition:background .15s;
+  }
+  .agora-card.style-teal .a-btn{background:var(--emerald);color:#062018;border-color:var(--emerald);}
+  .agora-card .a-btn:hover{background:var(--accent-hover);}
+  .agora-card.style-teal .a-btn:hover{filter:brightness(1.08);}
+
+  /* ---------- Agora promo admin settings ---------- */
+  .promo-admin-section{border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:32px;background:var(--bg-raised);}
+  .promo-admin-section .a-title{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .promo-admin-section .field{margin-bottom:14px;}
+  .promo-admin-section label{display:block;font-size:12px;color:var(--text-faint);margin-bottom:6px;font-family:'Inter',sans-serif;font-weight:500;}
+  .promo-admin-row{display:flex;gap:12px;flex-wrap:wrap;}
+  .promo-admin-row .field{flex:1;min-width:160px;}
+  .promo-toggle-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+  .promo-toggle-row label{margin:0;font-size:13.5px;color:var(--text);font-family:'Inter',sans-serif;}
+  .pulse-num{font-family:'Inter',sans-serif;font-size:32px;font-weight:700;color:var(--text);letter-spacing:-0.02em;font-variant-numeric:tabular-nums;}
+  .pulse-svg{flex:1;height:34px;}
+  .pulse-svg path{fill:none;stroke:var(--accent);stroke-width:1.8;}
+  .pulse-sub{font-size:12px;color:var(--text-faint);margin-top:8px;font-family:'Inter',sans-serif;}
+
+  /* ---------- Search + filters ---------- */
+  .search-box{position:relative;margin-bottom:20px;}
+  .search-box input{
+    width:100%;background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius-md);
+    color:var(--text);font-family:'Inter',sans-serif;font-size:14.5px;padding:13px 16px 13px 42px;
+    outline:none;transition:border-color .15s,background .15s;
+  }
+  .search-box input:focus{border-color:var(--accent);background:var(--bg-raised-2);}
+  .search-box input::placeholder{color:var(--text-faint);}
+  .search-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--text-faint);pointer-events:none;}
+
+  .pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;}
+  .pill{
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+    background:var(--bg-raised);border:1px solid var(--border);color:var(--text-secondary);
+    padding:7px 14px;border-radius:20px;cursor:pointer;transition:all .15s;
+  }
+  .pill:hover{border-color:var(--border-strong);color:var(--text);}
+  .pill.active{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent-hover);}
+
+  /* ---------- Section / grid ---------- */
+  .section-label{
+    font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--text-faint);margin:36px 0 16px;display:flex;align-items:center;gap:10px;
+  }
+  .section-label::after{content:"";flex:1;height:0;border-top:1px solid var(--border);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
+
+  .card{
+    background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius-md);
+    padding:16px 18px;cursor:pointer;transition:border-color .15s,background .15s,transform .1s;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .card:hover{border-color:var(--border-strong);background:var(--bg-hover);transform:translateY(-1px);}
+  .card .cname{font-weight:600;font-size:14.5px;line-height:1.3;min-height:37px;font-family:'Inter',sans-serif;color:var(--text);}
+  .card .cnum{font-family:'Inter',sans-serif;font-size:24px;font-weight:700;color:var(--text);letter-spacing:-0.02em;font-variant-numeric:tabular-nums;}
+  .card .cavg{font-size:11px;color:var(--text-faint);margin-top:-4px;font-family:'Inter',sans-serif;}
+  .stars{color:var(--accent);letter-spacing:2px;font-size:13px;}
+  .stars .off{color:var(--border-strong);}
+  .card .cpulse{height:16px;margin-top:2px;}
+  .card .cpulse path{fill:none;stroke:var(--border-strong);stroke-width:1.4;}
+  .card .ccount{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-faint);margin-top:2px;}
+  .issue-badge{
+    align-self:flex-start;font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;
+    color:var(--amber);background:var(--amber-soft);border:1px solid rgba(245,158,11,0.3);
+    border-radius:20px;padding:2px 9px;margin-top:2px;
+  }
+  .mess-flag-badge{
+    align-self:flex-start;font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;
+    color:var(--danger);background:var(--danger-soft);border:1px solid rgba(248,113,113,0.35);
+    border-radius:20px;padding:2px 9px;margin-bottom:2px;letter-spacing:.01em;
+  }
+
+  /* ---------- "Today's food" mess vote ---------- */
+  .mess-vote-block{margin-bottom:6px;}
+  .mv-label{font-size:13px;color:var(--text-secondary);margin-bottom:10px;font-weight:500;font-family:'Inter',sans-serif;}
+  .mv-buttons{display:flex;gap:10px;margin-bottom:10px;}
+  .mv-btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+    background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);
+    color:var(--text-secondary);font-family:'Inter',sans-serif;font-weight:600;font-size:14px;
+    padding:10px;cursor:pointer;transition:all .12s;
+  }
+  .mv-btn:hover{border-color:var(--border-strong);color:var(--text);}
+  .mv-btn:disabled{opacity:.6;cursor:default;}
+  .mv-btn.mv-yes.active{background:var(--emerald-soft);border-color:rgba(16,185,129,0.45);color:var(--emerald);}
+  .mv-btn.mv-no.active{background:var(--danger-soft);border-color:rgba(248,113,113,0.45);color:var(--danger);}
+  .mv-you{font-size:12px;color:var(--text-faint);margin-bottom:6px;font-family:'Inter',sans-serif;}
+  .mv-stats{font-size:12px;color:var(--text-faint);font-family:'Inter',sans-serif;}
+  .mv-flag-note{
+    margin-top:10px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
+    color:var(--danger);background:var(--danger-soft);border:1px solid rgba(248,113,113,0.3);
+    border-radius:var(--radius-sm);padding:8px 12px;
+  }
+
+  .empty{color:var(--text-faint);font-size:14px;padding:30px 4px;font-family:'Inter',sans-serif;}
+
+  /* ---------- Overlay / detail ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(6,7,9,0.72);
+    display:flex;align-items:flex-start;justify-content:center;padding:56px 18px;z-index:50;
+    overflow-y:auto;backdrop-filter:blur(2px);
+  }
+  .panel{
+    background:var(--bg-raised);border:1px solid var(--border);border-radius:var(--radius-lg);
+    max-width:600px;width:100%;padding:30px 30px 34px;position:relative;
+    box-shadow:0 20px 50px rgba(0,0,0,0.4);
+  }
+  .close-btn{
+    position:absolute;top:18px;right:20px;background:var(--bg-raised-2);border:1px solid var(--border);color:var(--text-secondary);
+    font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;line-height:1;padding:6px 10px;border-radius:var(--radius-sm);transition:all .15s;
+  }
+  .close-btn:hover{color:var(--text);border-color:var(--border-strong);}
+  .p-eyebrow{font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+  .p-title{font-family:'Inter',sans-serif;font-size:24px;font-weight:700;margin:0 0 16px;padding-right:30px;line-height:1.3;letter-spacing:-0.01em;color:var(--text);}
+  .p-rating-row{display:flex;align-items:baseline;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+  .p-rating-num{font-family:'Inter',sans-serif;font-size:30px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+  .p-rating-count{font-size:13px;color:var(--text-faint);font-family:'Inter',sans-serif;}
+
+  .divider{height:0;border-top:1px solid var(--border);margin:22px 0;}
+
+  .rate-label{font-size:13px;color:var(--text-secondary);margin-bottom:10px;font-weight:500;font-family:'Inter',sans-serif;}
+  .star-input{display:flex;gap:6px;margin-bottom:14px;}
+  .star-input button{
+    background:none;border:none;font-size:24px;cursor:pointer;color:var(--border-strong);
+    padding:0;line-height:1;transition:color .1s;
+  }
+  .star-input button.on{color:var(--accent);}
+  textarea,input.text-field{
+    width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);
+    color:var(--text);font-family:'Inter',sans-serif;font-size:14px;padding:11px 14px;
+    resize:vertical;outline:none;transition:border-color .15s;
+  }
+  textarea{min-height:64px;}
+  textarea:focus,input.text-field:focus{border-color:var(--accent);}
+  .post-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;flex-wrap:wrap;}
+  .hint{font-size:12px;color:var(--text-faint);font-family:'Inter',sans-serif;}
+  .post-btn{
+    background:var(--accent);color:#0b1220;border:1px solid var(--accent);border-radius:var(--radius-sm);padding:9px 18px;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;transition:background .12s;
+    white-space:nowrap;
+  }
+  .post-btn:hover{background:var(--accent-hover);}
+  .post-btn:disabled{background:var(--bg-raised-2);color:var(--text-faint);border-color:var(--border);cursor:not-allowed;}
+  .form-error{color:var(--danger);font-size:12.5px;margin-top:8px;font-family:'Inter',sans-serif;}
+
+  .feedback-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .feedback-head .fh-label{font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--text-faint);}
+  .feedback-list{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow-y:auto;padding-right:4px;}
+  .fitem{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;display:flex;gap:12px;}
+  .fitem.admin-item{border-color:var(--accent-border);}
+  .upvote-btn{
+    background:var(--bg-raised-2);border:1px solid var(--border);border-radius:var(--radius-sm);
+    color:var(--text-secondary);cursor:pointer;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:12px;min-width:40px;height:fit-content;transition:all .12s;
+  }
+  .upvote-btn:hover{border-color:var(--accent-border);color:var(--accent-hover);}
+  .upvote-btn.voted{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent-hover);}
+  .upvote-btn svg{width:12px;height:12px;}
+  .fbody{flex:1;min-width:0;}
+  .fstars{margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .admin-tag{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--accent-hover);border:1px solid var(--accent-border);border-radius:20px;padding:1px 8px;}
+  .status-badge{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;border-radius:20px;padding:2px 9px;line-height:1.6;}
+  .status-badge.resolved{background:var(--emerald-soft);color:var(--emerald);border:1px solid rgba(16,185,129,0.35);}
+  .status-badge.unresolved{background:var(--bg-raised-2);color:var(--text-secondary);border:1px solid var(--border);}
+  .status-badge.compliment{background:var(--accent-soft);color:var(--accent-hover);border:1px solid var(--accent-border);}
+  .fitem-actions{display:flex;gap:6px;margin-top:8px;align-items:center;}
+  .resolve-hint{font-family:'Inter',sans-serif;font-size:11px;color:var(--text-faint);font-style:italic;}
+  .mini-btn.resolve-btn{border-color:rgba(16,185,129,0.4);color:var(--emerald);}
+  .mini-btn.resolve-btn:hover{border-color:var(--emerald);background:var(--emerald-soft);}
+  .admin-fitem-controls{display:flex;gap:6px;margin-top:8px;}
+  .mini-btn{background:var(--bg-raised-2);border:1px solid var(--border);color:var(--text-secondary);border-radius:var(--radius-sm);padding:3px 9px;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;transition:all .12s;}
+  .mini-btn:hover{border-color:var(--border-strong);color:var(--text);}
+  .mini-btn.danger:hover{border-color:var(--danger);color:var(--danger);}
+  .mini-btn:disabled{opacity:.5;cursor:default;}
+  .ftext{font-size:13.5px;line-height:1.5;color:var(--text);word-wrap:break-word;font-family:'Inter',sans-serif;}
+  .fmeta{font-size:11px;color:var(--text-faint);margin-top:5px;font-family:'Inter',sans-serif;}
+  .loading-msg,.err-msg{font-size:13px;color:var(--text-faint);padding:14px 0;font-family:'Inter',sans-serif;}
+  .err-msg{color:var(--danger);}
+  .visibility-note{font-size:12px;color:var(--text-faint);margin-top:20px;line-height:1.55;border-top:1px solid var(--border);padding-top:14px;font-family:'Inter',sans-serif;}
+
+  /* ---------- Admin panel ---------- */
+  .admin-section{border:1px solid var(--accent-border);border-radius:var(--radius-lg);padding:18px;margin-top:8px;background:var(--accent-soft);}
+  .admin-section .a-title{font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--accent-hover);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .admin-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .admin-row .field{flex:1;min-width:100px;}
+  .admin-row label{display:block;font-size:12px;color:var(--text-faint);margin-bottom:5px;font-family:'Inter',sans-serif;font-weight:500;}
+  .admin-subtitle{font-size:12.5px;color:var(--text-secondary);margin:18px 0 10px;font-weight:600;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.02em;}
+
+  @media (max-width:760px){
+    .hero{grid-template-columns:1fr;}
+  }
+  @media (max-width:600px){
+    .wrap{padding:24px 16px 76px;}
+    .login-screen{margin-top:6vh;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut,
+  browserLocalPersistence, setPersistence,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+/* ---------------- Firebase ----------------
+ * These values are NOT secret — they're safe to ship in client JS. Get them
+ * from Firebase Console -> Project settings -> General -> "Your apps" ->
+ * SDK setup and configuration.
+ *
+ * IMPORTANT for Agora SSO: use this EXACT SAME config object (same
+ * Firebase project) in the Agora codebase too. Firebase Auth shares sign-in
+ * state across different sites automatically as long as they're on the same
+ * project — someone who signs in here will already be signed in on Agora.
+ * You'll also need to add both sites' domains under Authentication ->
+ * Settings -> Authorized domains in the Firebase console, or sign-in will
+ * fail with auth/unauthorized-domain.
+ */
+const firebaseConfig = {
+  apiKey: "AIzaSyARnLRmarNjbAS0jYgjS0VwUkl3nrpigz8",
+  authDomain: "agora-ppc.firebaseapp.com",
+  databaseURL: "https://agora-ppc-default-rtdb.firebaseio.com",
+  projectId: "agora-ppc",
+  storageBucket: "agora-ppc.firebasestorage.app",
+  messagingSenderId: "795905510071",
+  appId: "1:795905510071:web:17dfadcda9aeb67b9a9b32",
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ hd: "pilani.bits-pilani.ac.in" }); // hints Google to prefer BITS accounts
+setPersistence(auth, browserLocalPersistence).catch(()=>{});
+
+(function(){
+
+const BITS_DOMAIN = "@pilani.bits-pilani.ac.in";
+
+/* ---------------- Static entity data ---------------- */
+const ENTITIES = [
+  {id:"mess-ashok-rp", name:"Ashok-RP Mess", category:"Messes", seed:3.7},
+  {id:"mess-bhagirath-vishwakarma", name:"Bhagirath-Vishwakarma Mess", category:"Messes", seed:4.5},
+  {id:"mess-ram-budh", name:"Ram-Budh Mess", category:"Messes", seed:4.2},
+  {id:"mess-krishna-gandhi", name:"Krishna-Gandhi Mess", category:"Messes", seed:4.1},
+  {id:"mess-meera", name:"Meera Mess", category:"Messes", seed:4.0},
+  {id:"mess-shankar-vyas", name:"Shankar-Vyas Mess", category:"Messes", seed:3.9},
+  {id:"hostel-ashok", name:"Ashok", category:"Hostels", seed:3.3},
+  {id:"hostel-bhagirath", name:"Bhagirath", category:"Hostels", seed:4.2},
+  {id:"hostel-budh", name:"Budh", category:"Hostels", seed:4.1},
+  {id:"hostel-gandhi", name:"Gandhi", category:"Hostels", seed:3.9},
+  {id:"hostel-krishna", name:"Krishna", category:"Hostels", seed:3.7},
+  {id:"hostel-meera", name:"Meera", category:"Hostels", seed:4.0},
+  {id:"hostel-rana-pratap", name:"Rana-Pratap", category:"Hostels", seed:3.4},
+  {id:"hostel-ram", name:"Ram", category:"Hostels", seed:3.9},
+  {id:"hostel-shanker", name:"Shanker", category:"Hostels", seed:3.1},
+  {id:"hostel-vishwakarma", name:"Vishwakarma", category:"Hostels", seed:3.5},
+  {id:"hostel-vyas", name:"Vyas", category:"Hostels", seed:2.9},
+  {id:"gen-admin", name:"Admin", category:"General", seed:3.7},
+  {id:"gen-professors", name:"Professors", category:"General", seed:3.9},
+  {id:"gen-library", name:"Library", category:"General", seed:4.2},
+  {id:"gen-new-auditorium", name:"New Auditorium Block", category:"General", seed:4.7},
+  {id:"gen-faculty-1", name:"Faculty Division - I", category:"General", seed:4.6},
+  {id:"gen-faculty-2", name:"Faculty Division - II", category:"General", seed:3.8},
+  {id:"gen-faculty-3", name:"Faculty Division - III", category:"General", seed:4.9},
+  {id:"gen-sports-ground", name:"Sports Ground", category:"General", seed:3.8},
+  {id:"gen-infra", name:"General Infrastructure", category:"General", seed:3.6},
+];
+const CATS = ["All","Messes","Hostels","General"];
+const SEED_WEIGHT_FALLBACK = 22;
+
+/* ---------------- State ---------------- */
+let state = {
+  email: null,
+  isAdmin: false,
+  adminChecked: false,
+  authLoading: true,
+  authError: "",
+  signingIn: false,
+
+  query: "",
+  cat: "All",
+  stats: null,
+  seedWeight: SEED_WEIGHT_FALLBACK,
+  statsLoaded: false,
+  issueCounts: {},
+
+  openId: null,
+  feedback: {},
+  feedbackLoading: false,
+  feedbackError: "",
+
+  myStars: 0,
+  myText: "",
+  posting: false,
+  postError: "",
+
+  upvoting: {},
+  resolving: {},
+
+  adminRating: {},
+  adminWeight: {},
+  adminResetBusy: false,
+  adminResetError: "",
+  adminFbStars: {},
+  adminFbText: {},
+  adminFbUpvotes: {},
+  adminFbBusy: false,
+  adminFbError: "",
+  adminActionBusy: {},
+
+  agoraPromo: null,
+  promoForm: null,
+  promoSaving: false,
+  promoError: "",
+  promoSaved: false,
+
+  // "Today's food" yes/no mess voting
+  messVoteSummary: {},     // { [messId]: {yes,no,total,badPct,flagged} } — for main-page flags
+  messVoteThreshold: 25,
+  messVoteDate: null,
+  messVote: {},            // { [messId]: {yes,no,total,badPct,flagged,voted,threshold} } — for the open panel
+  messVoteBusy: false,
+  messVoteError: "",
+  adminThresholdInput: null,
+  adminThresholdBusy: false,
+  adminThresholdError: "",
+  adminThresholdSaved: false,
+};
+
+function avgOf(id){
+  const s = state.stats && state.stats[id];
+  const ent = ENTITIES.find(e=>e.id===id);
+  if(!s) return ent.seed;
+  return s.sum / s.count;
+}
+function countOf(id){
+  const s = state.stats && state.stats[id];
+  return s ? Math.round(s.count) : state.seedWeight;
+}
+function overallPulse(){
+  if(!state.stats) return ENTITIES.reduce((a,e)=>a+e.seed,0)/ENTITIES.length;
+  let sum=0,count=0;
+  ENTITIES.forEach(e=>{
+    const s = state.stats[e.id];
+    if(s){sum+=s.sum;count+=s.count;} else {sum+=e.seed*state.seedWeight;count+=state.seedWeight;}
+  });
+  return sum/count;
+}
+
+/* ---------------- API helpers ---------------- */
+async function api(path, opts){
+  opts = opts || {};
+  const headers = Object.assign({}, opts.headers || {});
+  if(auth.currentUser){
+    try{ headers['Authorization'] = 'Bearer ' + await auth.currentUser.getIdToken(); }catch(e){}
+  }
+  const res = await fetch('/api/'+path, Object.assign({}, opts, { headers }));
+  let data = null;
+  try { data = await res.json(); } catch {}
+  if(!res.ok){
+    throw new Error((data && data.error) || ('Request failed ('+res.status+')'));
+  }
+  return data;
+}
+
+async function loadStats(){
+  try{
+    const data = await api('stats');
+    state.stats = data.stats || {};
+    state.seedWeight = data.seedWeight || SEED_WEIGHT_FALLBACK;
+  }catch(e){
+    state.stats = {};
+  }
+  state.statsLoaded = true;
+  render();
+}
+
+async function loadIssueCounts(){
+  try{
+    const data = await api('feedback?action=counts');
+    state.issueCounts = data.counts || {};
+  }catch(e){
+    state.issueCounts = {};
+  }
+  render();
+}
+
+async function loadMessVoteSummary(){
+  try{
+    const data = await api('mess-vote?action=summary');
+    state.messVoteSummary = data.votes || {};
+    state.messVoteThreshold = data.threshold || 25;
+    state.messVoteDate = data.date;
+    if(state.adminThresholdInput === null) state.adminThresholdInput = state.messVoteThreshold;
+  }catch(e){
+    state.messVoteSummary = {};
+  }
+  render();
+}
+
+async function loadMessVote(id){
+  try{
+    const data = await api('mess-vote?id='+encodeURIComponent(id));
+    state.messVote[id] = data;
+  }catch(e){ /* silent — the vote block just falls back to summary data */ }
+  render();
+}
+
+async function submitMessVote(vote){
+  const id = state.openId;
+  if(!id || state.messVoteBusy) return;
+  state.messVoteBusy = true; state.messVoteError = ""; render();
+  try{
+    const data = await api('mess-vote', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, vote })
+    });
+    state.messVote[id] = data;
+    state.messVoteSummary[id] = { yes:data.yes, no:data.no, total:data.total, badPct:data.badPct, flagged:data.flagged };
+  }catch(e){
+    state.messVoteError = e.message;
+  }
+  state.messVoteBusy = false; render();
+}
+
+async function loadFeedback(id){
+  state.feedbackLoading = true;
+  state.feedbackError = "";
+  render();
+  try{
+    const data = await api('feedback?id='+encodeURIComponent(id));
+    state.feedback[id] = data.feedback || [];
+  }catch(e){
+    state.feedbackError = "Couldn't load feedback: " + e.message;
+  }
+  state.feedbackLoading = false;
+  render();
+}
+
+async function loadAgoraPromo(){
+  try{
+    const data = await api('agora-promo');
+    state.agoraPromo = data.promo;
+    if(!state.promoForm) state.promoForm = { ...data.promo };
+  }catch(e){
+    state.agoraPromo = null;
+  }
+  render();
+}
+
+async function checkAdmin(){
+  if(!state.email) return;
+  try{
+    const data = await api('check-admin');
+    state.isAdmin = !!data.isAdmin;
+  }catch(e){
+    state.isAdmin = false;
+  }
+  state.adminChecked = true;
+  render();
+}
+
+/* ---------------- Login / logout ---------------- */
+async function signInWithGoogle(){
+  if(state.signingIn) return;
+  state.signingIn = true; state.authError = ""; render();
+  try{
+    const result = await signInWithPopup(auth, googleProvider);
+    const email = (result.user.email || "").toLowerCase();
+    if(!email.endsWith(BITS_DOMAIN)){
+      await signOut(auth);
+      state.authError = "Please use your BITS Pilani email, ending in " + BITS_DOMAIN + ".";
+    }
+    // on success, onAuthStateChanged below picks up the signed-in user and renders
+  }catch(e){
+    if(!(e && e.code === 'auth/popup-closed-by-user')){
+      state.authError = "Sign-in failed. Please try again.";
+    }
+  }
+  state.signingIn = false;
+  render();
+}
+function logout(){
+  signOut(auth);
+  state = Object.assign({}, state, {
+    isAdmin: false, adminChecked:false, openId:null,
+  });
+}
+
+/* ---------------- Student actions ---------------- */
+function openEntity(id){
+  state.openId = id;
+  state.myStars = 0;
+  state.myText = "";
+  state.postError = "";
+  state.adminResetError = "";
+  state.adminFbError = "";
+  if(state.adminRating[id]===undefined) state.adminRating[id] = Math.round(avgOf(id)*10)/10;
+  if(state.adminWeight[id]===undefined) state.adminWeight[id] = countOf(id);
+  if(state.adminFbStars[id]===undefined) state.adminFbStars[id] = 5;
+  if(state.adminFbUpvotes[id]===undefined) state.adminFbUpvotes[id] = 0;
+  if(!state.feedback[id]) loadFeedback(id);
+  const ent = ENTITIES.find(x=>x.id===id);
+  if(ent && ent.category === "Messes"){
+    state.messVoteError = "";
+    loadMessVote(id);
+  }
+  render();
+}
+function closeEntity(){
+  state.openId = null;
+  render();
+}
+async function submitFeedback(){
+  const id = state.openId;
+  if(state.myStars < 1 || state.posting) return;
+  state.posting = true; state.postError=""; render();
+  try{
+    await api('feedback', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, stars: state.myStars, text: state.myText })
+    });
+    await loadStats();
+    if(state.myText.trim()) { await loadFeedback(id); await loadIssueCounts(); }
+    state.myStars = 0;
+    state.myText = "";
+  }catch(e){
+    state.postError = e.message;
+  }
+  state.posting = false;
+  render();
+}
+async function upvote(fid){
+  const id = state.openId;
+  if(state.upvoting[fid]) return;
+  state.upvoting[fid] = true;
+  try{
+    const data = await api('feedback?action=upvote', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, feedbackId: fid })
+    });
+    const item = state.feedback[id].find(f=>f.id===fid);
+    if(item){
+      item.upvotes = data.upvotes;
+      if(!item.upvotedBy) item.upvotedBy = [];
+      if(!item.upvotedBy.includes(state.email)) item.upvotedBy.push(state.email);
+    }
+  }catch(e){ /* silent */ }
+  state.upvoting[fid] = false;
+  render();
+}
+async function toggleResolve(fid){
+  const id = state.openId;
+  if(state.resolving[fid]) return;
+  const item = (state.feedback[id]||[]).find(f=>f.id===fid);
+  if(!item || !item.canResolve) return;
+  const nextResolved = !item.resolved;
+  state.resolving[fid] = true; render();
+  try{
+    const data = await api('feedback?action=resolve', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, feedbackId: fid, resolved: nextResolved })
+    });
+    item.resolved = data.resolved;
+    item.resolvedBy = data.resolvedBy;
+    item.resolvedAt = data.resolvedAt;
+    const delta = item.resolved ? -1 : 1;
+    state.issueCounts[id] = Math.max(0, (state.issueCounts[id]||0) + delta);
+  }catch(e){ /* silent */ }
+  state.resolving[fid] = false;
+  render();
+}
+
+/* ---------------- Admin actions ---------------- */
+async function adminApplyReset(){
+  const id = state.openId;
+  state.adminResetBusy = true; state.adminResetError=""; render();
+  try{
+    await api('admin?action=reset', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, rating: state.adminRating[id], weight: state.adminWeight[id] })
+    });
+    await loadStats();
+  }catch(e){
+    state.adminResetError = e.message;
+  }
+  state.adminResetBusy = false;
+  render();
+}
+async function adminAddFeedback(){
+  const id = state.openId;
+  const text = (state.adminFbText[id]||"").trim();
+  if(!text) { state.adminFbError = "Feedback text is required."; render(); return; }
+  state.adminFbBusy = true; state.adminFbError=""; render();
+  try{
+    await api('admin?action=feedback', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        id, text,
+        stars: state.adminFbStars[id],
+        upvotes: state.adminFbUpvotes[id]
+      })
+    });
+    state.adminFbText[id] = "";
+    await loadFeedback(id);
+  }catch(e){
+    state.adminFbError = e.message;
+  }
+  state.adminFbBusy = false;
+  render();
+}
+async function adminDeleteFeedback(fid){
+  const id = state.openId;
+  if(!state.isAdmin || state.adminActionBusy[fid]) return;
+  if(!confirm('Delete this feedback? This cannot be undone.')) return;
+  state.adminActionBusy[fid] = true; render();
+  try{
+    await api('admin?action=delete-feedback', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, feedbackId: fid })
+    });
+    state.feedback[id] = (state.feedback[id]||[]).filter(f=>f.id!==fid);
+  }catch(e){
+    alert('Could not delete: ' + e.message);
+  }
+  delete state.adminActionBusy[fid];
+  render();
+}
+async function adminBumpUpvote(fid, delta){
+  const id = state.openId;
+  if(!state.isAdmin || state.adminActionBusy[fid]) return;
+  state.adminActionBusy[fid] = true; render();
+  try{
+    const data = await api('admin?action=vote', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, feedbackId: fid, delta })
+    });
+    const item = (state.feedback[id]||[]).find(f=>f.id===fid);
+    if(item) item.upvotes = data.upvotes;
+  }catch(e){
+    alert('Could not update votes: ' + e.message);
+  }
+  delete state.adminActionBusy[fid];
+  render();
+}
+
+async function saveMessThreshold(){
+  if(state.adminThresholdBusy) return;
+  state.adminThresholdBusy = true; state.adminThresholdError = ""; state.adminThresholdSaved = false; render();
+  try{
+    const data = await api('admin?action=mess-threshold', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ threshold: state.adminThresholdInput })
+    });
+    state.messVoteThreshold = data.threshold;
+    state.adminThresholdInput = data.threshold;
+    state.adminThresholdSaved = true;
+    await loadMessVoteSummary();
+  }catch(e){
+    state.adminThresholdError = e.message;
+  }
+  state.adminThresholdBusy = false; render();
+}
+
+async function savePromo(){
+  if(!state.isAdmin || state.promoSaving) return;
+  state.promoSaving = true; state.promoError = ""; state.promoSaved = false; render();
+  try{
+    const data = await api('agora-promo', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ...state.promoForm })
+    });
+    state.agoraPromo = data.promo;
+    state.promoForm = { ...data.promo };
+    state.promoSaved = true;
+  }catch(e){
+    state.promoError = e.message;
+  }
+  state.promoSaving = false;
+  render();
+}
+
+/* ---------------- Rendering helpers ---------------- */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function timeAgo(ts){
+  const s = Math.floor((Date.now()-ts)/1000);
+  if(s<60) return 'just now';
+  const m = Math.floor(s/60); if(m<60) return m+'m ago';
+  const h = Math.floor(m/60); if(h<24) return h+'h ago';
+  const d = Math.floor(h/24); return d+'d ago';
+}
+function starsMarkup(avg){
+  const rounded = Math.round(avg*2)/2;
+  let out = '';
+  for(let i=1;i<=5;i++){
+    out += rounded >= i-0.5 ? '★' : '<span class="off">★</span>';
+  }
+  return out;
+}
+function pulsePath(w,h,amp){
+  const points = 6;
+  let d = `M0 ${h/2}`;
+  for(let i=0;i<points;i++){
+    const x1 = (w/points)*i + w/(points*4);
+    const x2 = (w/points)*i + w/(points*2);
+    const x3 = (w/points)*(i+1);
+    const dir = i%2===0 ? -1 : 1;
+    d += ` L${x1} ${h/2} L${x2} ${h/2 + dir*amp} L${x3} ${h/2}`;
+  }
+  return d;
+}
+function cardPulseSvg(avg, big){
+  const h = big?34:16, w = big?200:160;
+  const amp = 3 + (avg/5)*(big?13:7);
+  const dur = (2.6 - (avg/5)*1.6).toFixed(2);
+  return `<svg class="${big?'pulse-svg':'cpulse'}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <path d="${pulsePath(w,h,amp)}" style="animation:pulseflow ${dur}s linear infinite"/>
+  </svg>`;
+}
+function entityCard(e){
+  const avg = avgOf(e.id);
+  const openIssues = state.issueCounts[e.id] || 0;
+  const mv = e.category === "Messes" ? state.messVoteSummary[e.id] : null;
+  return `<div class="card" data-open="${e.id}">
+    ${mv && mv.flagged ? `<div class="mess-flag-badge" title="${mv.total} responses today &middot; ${Math.round(mv.badPct)}% said today's food wasn't good">&#128681; Today's food flagged</div>` : ''}
+    <div class="cname">${e.name}</div>
+    <div class="cnum">${avg.toFixed(1)}</div>
+    <div class="cavg">/ 5.0 &middot; campus avg</div>
+    <div class="stars">${starsMarkup(avg)}</div>
+    ${cardPulseSvg(avg,false)}
+    <div class="ccount">${countOf(e.id)} ratings</div>
+    ${openIssues>0 ? `<div class="issue-badge">${openIssues} unresolved</div>` : ''}
+  </div>`;
+}
+function filteredEntities(){
+  const q = state.query.trim().toLowerCase();
+  return ENTITIES.filter(e=>{
+    const matchesCat = state.cat==="All" || e.category===state.cat;
+    const matchesQ = !q || e.name.toLowerCase().includes(q);
+    return matchesCat && matchesQ;
+  });
+}
+function renderGrid(){
+  const list = filteredEntities();
+  if(list.length===0){
+    return `<div class="empty">No matches. Try a different name — Ashok, Meera, Library, Sports Ground...</div>`;
+  }
+  if(state.query.trim()){
+    return `<div class="section-label">Matches</div><div class="grid">${list.map(entityCard).join('')}</div>`;
+  }
+  const cats = state.cat==="All" ? ["Messes","Hostels","General"] : [state.cat];
+  return cats.map(c=>{
+    const items = list.filter(e=>e.category===c);
+    if(!items.length) return '';
+    return `<div class="section-label">${c}</div><div class="grid">${items.map(entityCard).join('')}</div>`;
+  }).join('');
+}
+
+function renderLogin(){
+  return `<div class="login-screen">
+    <div class="eyebrow">Campus Pulse</div>
+    <h1>Sign in with your<br>BITS email.</h1>
+    <p>Ratings and feedback are tied to the campus community — you'll need to sign in with your official BITS Pilani Google account to read or post.</p>
+    <div class="login-form">
+      <button class="google-btn" id="googleSignInBtn" ${state.signingIn?'disabled':''}>
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.56 2.7-3.87 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.03l2.99-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58A8.6 8.6 0 0 0 9 0 9 9 0 0 0 .96 4.97l2.99 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+        <span>${state.signingIn?'Signing in…':'Continue with Google'}</span>
+      </button>
+      <div class="domain-hint">Must be a ${BITS_DOMAIN} account</div>
+      ${state.authError ? `<div class="login-error">${escapeHtml(state.authError)}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderMessVoteBlock(e){
+  if(e.category !== "Messes") return '';
+  const mv = state.messVote[e.id] || state.messVoteSummary[e.id] || null;
+  const total = mv ? mv.total : 0;
+  const voted = mv && mv.voted ? mv.voted : null;
+  const threshold = (mv && mv.threshold) || state.messVoteThreshold;
+  const badPct = mv ? Math.round(mv.badPct) : 0;
+  const flagged = mv ? mv.flagged : false;
+  const remaining = Math.max(0, threshold - total);
+
+  return `<div class="mess-vote-block">
+    <div class="mv-label">Was today's food good at ${e.name}?</div>
+    <div class="mv-buttons">
+      <button class="mv-btn mv-yes ${voted==='yes'?'active':''}" data-mess-vote="yes" ${state.messVoteBusy?'disabled':''}>&#128077; Yes</button>
+      <button class="mv-btn mv-no ${voted==='no'?'active':''}" data-mess-vote="no" ${state.messVoteBusy?'disabled':''}>&#128078; No</button>
+    </div>
+    ${voted ? `<div class="mv-you">You said ${voted==='yes'?'yes':'no'} for today &mdash; tap the other option to change it.</div>` : ''}
+    <div class="mv-stats">${total} response${total===1?'':'s'} today${total>0?` &middot; ${badPct}% said no`:''}${!flagged && total<threshold ? ` &middot; needs ${remaining} more before it can be flagged` : ''}</div>
+    ${flagged ? `<div class="mv-flag-note">&#128681; Over 60% said no today &mdash; this mess is showing a red flag on the main page.</div>` : ''}
+    ${state.messVoteError ? `<div class="form-error">${escapeHtml(state.messVoteError)}</div>` : ''}
+  </div>
+  <div class="divider"></div>`;
+}
+
+function renderPanel(){
+  if(!state.openId) return '';
+  const e = ENTITIES.find(x=>x.id===state.openId);
+  const avg = avgOf(e.id);
+  const list = (state.feedback[e.id]||[]).slice().sort((a,b)=>b.upvotes-a.upvotes);
+
+  const feedbackBody = state.feedbackLoading
+    ? `<div class="loading-msg">Loading feedback…</div>`
+    : state.feedbackError
+      ? `<div class="err-msg">${escapeHtml(state.feedbackError)}</div>`
+      : (list.length===0
+          ? `<div class="loading-msg">No feedback yet — be the first to leave a note.</div>`
+          : `<div class="feedback-list">${list.map(f=>`
+              <div class="fitem ${(state.isAdmin && f.admin)?'admin-item':''}">
+                <button class="upvote-btn ${(f.upvotedBy||[]).includes(state.email)?'voted':''}" data-upvote="${f.id}">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 9h-5v7H9v-7H4z"/></svg>
+                  ${f.upvotes}
+                </button>
+                <div class="fbody">
+                  <div class="fstars">
+                    <span class="stars">${starsMarkup(f.stars)}</span>
+                    ${(state.isAdmin && f.admin)?'<span class="admin-tag">Admin (visible to you only)</span>':''}
+                    ${f.stars>=4 && f.resolved && !f.resolvedAt
+                      ? '<span class="status-badge compliment">Compliment</span>'
+                      : `<span class="status-badge ${f.resolved?'resolved':'unresolved'}">${f.resolved?'Resolved':'Unresolved'}</span>`}
+                  </div>
+                  <div class="ftext" data-fid="${f.id}"></div>
+                  <div class="fmeta">
+                    ${timeAgo(f.ts)}${f.resolved && f.resolvedAt ? ' · marked resolved ' + timeAgo(f.resolvedAt) : ''}
+                  </div>
+                  <div class="fitem-actions">
+                    ${f.canResolve ? `
+                    <button class="mini-btn ${f.resolved?'':'resolve-btn'}" data-resolve="${f.id}" ${state.resolving[f.id]?'disabled':''}>
+                      ${state.resolving[f.id] ? '…' : (f.resolved ? 'Reopen' : 'Mark resolved')}
+                    </button>` : (f.resolved ? '' : '<span class="resolve-hint">Only the reporter or an admin can resolve this</span>')}
+                  </div>
+                  ${state.isAdmin ? `
+                  <div class="admin-fitem-controls">
+                    <button class="mini-btn" data-admin-vote="${f.id}" data-delta="-1" ${state.adminActionBusy[f.id]?'disabled':''} title="Reduce upvotes">▼</button>
+                    <button class="mini-btn" data-admin-vote="${f.id}" data-delta="1" ${state.adminActionBusy[f.id]?'disabled':''} title="Boost upvotes">▲</button>
+                    <button class="mini-btn danger" data-admin-delete="${f.id}" ${state.adminActionBusy[f.id]?'disabled':''} title="Delete feedback">Delete</button>
+                  </div>` : ''}
+                </div>
+              </div>`).join('')}</div>`);
+
+  const adminSection = state.isAdmin ? `
+    <div class="divider"></div>
+    <div class="admin-section">
+      <div class="a-title">Admin controls</div>
+
+      <div class="admin-subtitle">Set rating &amp; weight</div>
+      <div class="admin-row">
+        <div class="field">
+          <label>Rating (1–5)</label>
+          <input class="text-field" type="number" min="1" max="5" step="0.1" id="adminRatingInput" value="${state.adminRating[e.id]}">
+        </div>
+        <div class="field">
+          <label>Weight (vote count)</label>
+          <input class="text-field" type="number" min="1" step="1" id="adminWeightInput" value="${state.adminWeight[e.id]}">
+        </div>
+      </div>
+      <div class="post-row">
+        <span class="hint">Overwrites the average directly.</span>
+        <button class="post-btn" id="adminResetBtn" ${state.adminResetBusy?'disabled':''}>${state.adminResetBusy?'Applying…':'Apply'}</button>
+      </div>
+      ${state.adminResetError?`<div class="form-error">${escapeHtml(state.adminResetError)}</div>`:''}
+
+      <div class="admin-subtitle">Add feedback as admin</div>
+      <div class="star-input" id="adminStarInput">
+        ${[1,2,3,4,5].map(i=>`<button data-admin-star="${i}" class="${i<=state.adminFbStars[e.id]?'on':''}">★</button>`).join('')}
+      </div>
+      <textarea id="adminFbTextInput" placeholder="Feedback text to post on this entity...">${escapeHtml(state.adminFbText[e.id]||'')}</textarea>
+      <div class="admin-row" style="margin-top:10px;">
+        <div class="field">
+          <label>Upvotes to assign</label>
+          <input class="text-field" type="number" min="0" step="1" id="adminFbUpvotesInput" value="${state.adminFbUpvotes[e.id]}">
+        </div>
+      </div>
+      <div class="post-row">
+        <span class="hint">Posted immediately, no vote from you needed.</span>
+        <button class="post-btn" id="adminFbBtn" ${state.adminFbBusy?'disabled':''}>${state.adminFbBusy?'Posting…':'Add feedback'}</button>
+      </div>
+      ${state.adminFbError?`<div class="form-error">${escapeHtml(state.adminFbError)}</div>`:''}
+    </div>
+  ` : '';
+
+  return `<div class="overlay" id="overlay">
+    <div class="panel">
+      <button class="close-btn" id="closeBtn">✕</button>
+      <div class="p-eyebrow">${e.category}</div>
+      <div class="p-title">${e.name}</div>
+      <div class="p-rating-row">
+        <div class="p-rating-num">${avg.toFixed(1)}</div>
+        <div class="stars" style="font-size:17px;">${starsMarkup(avg)}</div>
+        <div class="p-rating-count">${countOf(e.id)} ratings</div>
+      </div>
+      ${cardPulseSvg(avg,true)}
+
+      <div class="divider"></div>
+
+      ${renderMessVoteBlock(e)}
+
+      <div class="rate-label">Rate ${e.name}</div>
+      <div class="star-input" id="starInput">
+        ${[1,2,3,4,5].map(i=>`<button data-star="${i}" class="${i<=state.myStars?'on':''}">★</button>`).join('')}
+      </div>
+      <textarea id="fbText" placeholder="Share specifics — food quality, room condition, staff, whatever's useful to the next person...">${escapeHtml(state.myText)}</textarea>
+      <div class="post-row">
+        <span class="hint">${state.myStars? state.myStars+' star'+(state.myStars>1?'s':'')+' selected' : 'Tap a star to rate'}</span>
+        <button class="post-btn" id="postBtn" ${state.myStars<1||state.posting?'disabled':''}>${state.posting?'Posting…':'Post'}</button>
+      </div>
+      ${state.postError?`<div class="form-error">${escapeHtml(state.postError)}</div>`:''}
+
+      <div class="divider"></div>
+
+      <div class="feedback-head">
+        <span class="fh-label">Feedback &middot; sorted by upvotes</span>
+        ${(state.issueCounts[e.id]||0) > 0
+          ? `<span class="issue-badge">${state.issueCounts[e.id]} unresolved</span>`
+          : (list.length>0 ? `<span class="status-badge resolved">All resolved</span>` : '')}
+      </div>
+      ${feedbackBody}
+
+      ${adminSection}
+
+      <div class="visibility-note">Ratings and feedback here are shared campus-wide — anyone who signs in with a BITS email can see what's posted.</div>
+    </div>
+  </div>`;
+}
+
+function renderAgoraCard(){
+  const p = state.agoraPromo;
+  if(!p || !p.enabled || !p.url) return '';
+  const chips = (p.highlights||'').split(',').map(s=>s.trim()).filter(Boolean);
+  return `<a class="agora-card style-${p.style==='teal'?'teal':'gold'}" href="${escapeHtml(p.url)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:block;color:inherit;">
+    <div class="a-eyebrow">Partner</div>
+    <div class="a-title">${escapeHtml(p.title)}</div>
+    <div class="a-desc">${escapeHtml(p.description)}</div>
+    ${chips.length ? `<div class="a-highlights">${chips.map(c=>`<span class="a-chip">${escapeHtml(c)}</span>`).join('')}</div>` : ''}
+    <span class="a-btn">${escapeHtml(p.buttonText)}</span>
+  </a>`;
+}
+
+function renderPromoAdminSection(){
+  if(!state.isAdmin || !state.promoForm) return '';
+  const f = state.promoForm;
+  return `<div class="promo-admin-section">
+    <div class="a-title">Agora promo card</div>
+    <div class="promo-toggle-row">
+      <input type="checkbox" id="promoEnabled" ${f.enabled?'checked':''}>
+      <label for="promoEnabled">Show the promo card on the homepage</label>
+    </div>
+    <div class="field">
+      <label>Link (where "${escapeHtml(f.buttonText||'the button')}" sends people)</label>
+      <input class="text-field" type="url" id="promoUrl" placeholder="https://theagora.example.com" value="${escapeHtml(f.url||'')}">
+    </div>
+    <div class="field">
+      <label>Title</label>
+      <input class="text-field" type="text" id="promoTitle" maxlength="60" value="${escapeHtml(f.title||'')}">
+    </div>
+    <div class="field">
+      <label>Description (2 sentences works best)</label>
+      <textarea id="promoDesc" maxlength="220">${escapeHtml(f.description||'')}</textarea>
+    </div>
+    <div class="field">
+      <label>Highlight chips (comma-separated, shown as small tags — e.g. "5 arenas, AI-judged, Open beta")</label>
+      <input class="text-field" type="text" id="promoHighlights" maxlength="140" value="${escapeHtml(f.highlights||'')}">
+    </div>
+    <div class="promo-admin-row">
+      <div class="field">
+        <label>Button text</label>
+        <input class="text-field" type="text" id="promoBtnText" maxlength="30" value="${escapeHtml(f.buttonText||'')}">
+      </div>
+      <div class="field">
+        <label>Card style</label>
+        <select class="text-field" id="promoStyle">
+          <option value="gold" ${f.style==='gold'?'selected':''}>Gold (Agora brand)</option>
+          <option value="teal" ${f.style==='teal'?'selected':''}>Teal (matches Pulse)</option>
+        </select>
+      </div>
+    </div>
+    <div class="post-row">
+      <span class="hint">${state.promoSaved?'Saved.':'Changes apply immediately once saved.'}</span>
+      <button class="post-btn" id="promoSaveBtn" ${state.promoSaving?'disabled':''}>${state.promoSaving?'Saving…':'Save'}</button>
+    </div>
+    ${state.promoError?`<div class="form-error">${escapeHtml(state.promoError)}</div>`:''}
+  </div>`;
+}
+
+function renderMessThresholdAdminSection(){
+  if(!state.isAdmin) return '';
+  if(state.adminThresholdInput === null) state.adminThresholdInput = state.messVoteThreshold;
+  return `<div class="promo-admin-section">
+    <div class="a-title">Mess flag threshold</div>
+    <div class="field">
+      <label>Minimum "today's food" responses required before a mess can be red-flagged (flags when over 60% say the food wasn't good)</label>
+      <input class="text-field" type="number" min="1" step="1" id="adminThresholdInput" value="${escapeHtml(String(state.adminThresholdInput))}" style="max-width:140px;">
+    </div>
+    <div class="post-row">
+      <span class="hint">${state.adminThresholdSaved?'Saved.':'Applies campus-wide, from the next vote onward.'}</span>
+      <button class="post-btn" id="adminThresholdBtn" ${state.adminThresholdBusy?'disabled':''}>${state.adminThresholdBusy?'Saving…':'Save'}</button>
+    </div>
+    ${state.adminThresholdError?`<div class="form-error">${escapeHtml(state.adminThresholdError)}</div>`:''}
+  </div>`;
+}
+
+/* ---------------- Main render ---------------- */
+function render(){
+  const app = document.getElementById('app');
+
+  if(state.authLoading){
+    app.innerHTML = `<div class="auth-loading">Loading…</div>`;
+    return;
+  }
+
+  if(!state.email){
+    app.innerHTML = renderLogin();
+    document.getElementById('googleSignInBtn').addEventListener('click', signInWithGoogle);
+    return;
+  }
+
+  const pulse = overallPulse();
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="brand">Campus <span class="dot">Pulse</span></div>
+      <div class="session">
+        <span>${escapeHtml(state.email)}</span>
+        ${state.isAdmin ? '<span class="badge admin-badge">ADMIN</span>' : (state.adminChecked ? '<span class="badge">STUDENT</span>' : '')}
+        <button class="logout-btn" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-text">
+        <div class="eyebrow">Campus Pulse</div>
+        <h1 class="title">Rated by the people<br>who live here.</h1>
+        <p class="tagline">Search any hostel, mess, or facility to see how it's actually rated — then add your own star rating and feedback.</p>
+      </div>
+      <div class="hero-right">
+        <div class="pulse-card">
+          <div class="plabel">Campus-wide pulse</div>
+          <div class="pulse-row">
+            <div class="pulse-num">${pulse.toFixed(2)}</div>
+            ${cardPulseSvg(pulse,true)}
+          </div>
+          <div class="pulse-sub">Average across every hostel, mess &amp; facility</div>
+        </div>
+        ${renderAgoraCard()}
+      </div>
+    </div>
+
+    ${renderPromoAdminSection()}
+    ${renderMessThresholdAdminSection()}
+
+    <div class="search-box">
+      <span class="search-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      <input id="searchInput" type="text" placeholder="Search any hostel, mess, or facility to read or leave feedback…" value="${escapeHtml(state.query)}" autocomplete="off">
+    </div>
+
+    <div class="pills">
+      ${CATS.map(c=>`<button class="pill ${state.cat===c?'active':''}" data-cat="${c}">${c}</button>`).join('')}
+    </div>
+
+    ${renderGrid()}
+    ${renderPanel()}
+  `;
+
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  if(state.isAdmin && state.promoForm){
+    const pEnabled = document.getElementById('promoEnabled');
+    const pUrl = document.getElementById('promoUrl');
+    const pTitle = document.getElementById('promoTitle');
+    const pDesc = document.getElementById('promoDesc');
+    const pHighlights = document.getElementById('promoHighlights');
+    const pBtnText = document.getElementById('promoBtnText');
+    const pStyle = document.getElementById('promoStyle');
+    if(pEnabled) pEnabled.addEventListener('change', e=>{ state.promoForm.enabled = e.target.checked; state.promoSaved=false; });
+    if(pUrl) pUrl.addEventListener('input', e=>{ state.promoForm.url = e.target.value; state.promoSaved=false; });
+    if(pTitle) pTitle.addEventListener('input', e=>{ state.promoForm.title = e.target.value; state.promoSaved=false; });
+    if(pDesc) pDesc.addEventListener('input', e=>{ state.promoForm.description = e.target.value; state.promoSaved=false; });
+    if(pHighlights) pHighlights.addEventListener('input', e=>{ state.promoForm.highlights = e.target.value; state.promoSaved=false; });
+    if(pBtnText) pBtnText.addEventListener('input', e=>{ state.promoForm.buttonText = e.target.value; state.promoSaved=false; });
+    if(pStyle) pStyle.addEventListener('change', e=>{ state.promoForm.style = e.target.value; state.promoSaved=false; render(); });
+    const pSaveBtn = document.getElementById('promoSaveBtn');
+    if(pSaveBtn) pSaveBtn.addEventListener('click', savePromo);
+
+    const thInput = document.getElementById('adminThresholdInput');
+    if(thInput) thInput.addEventListener('input', e=>{ state.adminThresholdInput = e.target.value; state.adminThresholdSaved = false; });
+    const thBtn = document.getElementById('adminThresholdBtn');
+    if(thBtn) thBtn.addEventListener('click', saveMessThreshold);
+  }
+
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input', e=>{
+    state.query = e.target.value;
+    const pos = e.target.selectionStart;
+    render();
+    const el = document.getElementById('searchInput');
+    el.focus();
+    el.setSelectionRange(pos,pos);
+  });
+  document.querySelectorAll('[data-cat]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.cat = btn.dataset.cat; render(); });
+  });
+  document.querySelectorAll('[data-open]').forEach(card=>{
+    card.addEventListener('click', ()=> openEntity(card.dataset.open));
+  });
+
+  const overlay = document.getElementById('overlay');
+  if(overlay){
+    overlay.addEventListener('click', e=>{ if(e.target===overlay) closeEntity(); });
+    document.getElementById('closeBtn').addEventListener('click', closeEntity);
+
+    document.querySelectorAll('[data-mess-vote]').forEach(b=>{
+      b.addEventListener('click', ()=> submitMessVote(b.dataset.messVote));
+    });
+
+    document.querySelectorAll('[data-star]').forEach(b=>{
+      b.addEventListener('click', ()=>{ state.myStars = parseInt(b.dataset.star,10); render(); });
+    });
+    const ta = document.getElementById('fbText');
+    ta.addEventListener('input', e=>{ state.myText = e.target.value; });
+    document.getElementById('postBtn').addEventListener('click', submitFeedback);
+
+    document.querySelectorAll('[data-upvote]').forEach(b=>{
+      b.addEventListener('click', ()=> upvote(b.dataset.upvote));
+    });
+    document.querySelectorAll('[data-resolve]').forEach(b=>{
+      b.addEventListener('click', ()=> toggleResolve(b.dataset.resolve));
+    });
+
+    if(state.isAdmin){
+      document.querySelectorAll('[data-admin-vote]').forEach(b=>{
+        b.addEventListener('click', ()=> adminBumpUpvote(b.dataset.adminVote, parseInt(b.dataset.delta,10)));
+      });
+      document.querySelectorAll('[data-admin-delete]').forEach(b=>{
+        b.addEventListener('click', ()=> adminDeleteFeedback(b.dataset.adminDelete));
+      });
+    }
+
+    // safely inject feedback text (textContent, not HTML)
+    document.querySelectorAll('.ftext').forEach(el=>{
+      const id = state.openId;
+      const item = (state.feedback[id]||[]).find(f=>f.id===el.dataset.fid);
+      if(item) el.textContent = item.text;
+    });
+
+    if(state.isAdmin){
+      const id = state.openId;
+      const rInput = document.getElementById('adminRatingInput');
+      const wInput = document.getElementById('adminWeightInput');
+      rInput.addEventListener('input', e=>{ state.adminRating[id] = e.target.value; });
+      wInput.addEventListener('input', e=>{ state.adminWeight[id] = e.target.value; });
+      document.getElementById('adminResetBtn').addEventListener('click', adminApplyReset);
+
+      document.querySelectorAll('[data-admin-star]').forEach(b=>{
+        b.addEventListener('click', ()=>{ state.adminFbStars[id] = parseInt(b.dataset.adminStar,10); render(); });
+      });
+      const afta = document.getElementById('adminFbTextInput');
+      afta.addEventListener('input', e=>{ state.adminFbText[id] = e.target.value; });
+      const afu = document.getElementById('adminFbUpvotesInput');
+      afu.addEventListener('input', e=>{ state.adminFbUpvotes[id] = e.target.value; });
+      document.getElementById('adminFbBtn').addEventListener('click', adminAddFeedback);
+    }
+  }
+}
+
+/* keyframes injected once */
+const styleEl = document.createElement('style');
+styleEl.textContent = `@keyframes pulseflow{0%{stroke-dashoffset:24;}100%{stroke-dashoffset:0;}}
+.pulse-svg path,.cpulse path{stroke-dasharray:4 3;}`;
+document.head.appendChild(styleEl);
+
+render();
+
+/* Fires once immediately with the cached session (if any), then again on
+ * every sign-in/sign-out. This is also what makes SSO with Agora work:
+ * if the person already has a session from Agora (same Firebase project),
+ * this fires with them already signed in. */
+onAuthStateChanged(auth, (user) => {
+  state.authLoading = false;
+  if(user){
+    state.email = (user.email || "").toLowerCase();
+    render();
+    checkAdmin();
+    loadStats();
+    loadIssueCounts();
+    loadAgoraPromo();
+    loadMessVoteSummary();
+  } else {
+    state.email = null;
+    state.isAdmin = false;
+    state.adminChecked = false;
+    render();
+  }
+});
+
+})();
+</script>
+</body>
+</html>
